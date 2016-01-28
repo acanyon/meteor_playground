@@ -1,0 +1,41 @@
+<head>
+  <title>qualia_meteor_interview</title>
+</head>
+
+<body>
+</body>
+
+<template name="home">
+  <h1 style="text-align:center;padding:30% 0 0 0;">Rock. Paper. Scissors</h1>
+  <h2 style="font-size:16px;text-align:center;padding:8px 0;color:darkgray;text-transform:uppercase;">Old game. New rules. Choose a player.</h2>
+  <br/><br/>
+  <div style="text-align:center;font-size:16;">
+    <a style="padding:0 7px;" href="/player1">Player 1</a>
+    <a style="padding:0 7px;" href="/player2">Player 2</a>
+  </div>
+</template>
+
+<template name="rps">
+  <div style="text-align:center;">
+    <label>Score</label>
+    <div>{{player1}},{{player2}}</div>
+    <div>{{currentMove}}</div>
+  </div>
+
+  <div>
+    <div class="move_choices player1">
+      <label>Player 1</label>
+      <div class="move rock player1" data-movename="rock">rock</div>
+      <div class="move paper player1" data-movename="paper">paper</div>
+      <div class="move scissors player1" data-movename="scissors">scissors</div>
+    </div>
+
+    <div class="move_choices player2">
+      <label>Player 2</label>
+      <div class="move rock player2" data-movename="rock">rock</div>
+      <div class="move paper player2" data-movename="paper">paper</div>
+      <div class="move scissors player2"  data-movename="scissors">scissors</div>
+    </div>
+  </div>
+</template>
+

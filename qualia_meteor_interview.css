@@ -1,0 +1,34 @@
+/* CSS declarations go here */
+
+.move_choices {
+  box-sizing: border-box;
+  display: inline-block;
+  padding: 10px 7px;
+  text-align: center;
+  width: 50%;
+}
+
+.move_choices label {
+  font-weight: bold;
+}
+
+.move_choices .move {
+  cursor: pointer;
+  padding: 7px 0;
+  background: white;
+  color: black;
+}
+
+.move_choices.disabled .move {
+  cursor: default;
+}
+
+.move_choices:not(.disabled) .move:hover {
+  background: yellow;
+}
+
+.move_choices .move.selected {
+  background: green;
+  color: white;
+}
+
