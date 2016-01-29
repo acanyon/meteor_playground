@@ -15,71 +15,70 @@ Router.route('/player2', function () {
 });
 
 if (Meteor.isClient) {
-  // score starts at 0
-  var _globalScore = Scores.findOne();
-  var _allScores = Scores.find();
-  Session.setDefault('currentMove', [null, null]);
-
   var refreshScore = function () {
-    var didChange = false;
-    var newScore = Scores.findOne();
-    if (_globalScore[0] !== newScore[0] && _globalScore[1] !== newScore[1]) {
-      _globalScore = newScore;
-      didChange = true;
-    }
-    return didChange;
+    var score = Scores.findOne();
+    Session.set('score', score);
   }
 
+  Template.rps.onRendered(function () {
+    refreshScore();
+  });
 
   Template.rps.helpers({
     player1: function () {
-      return _globalScore[0];
+      var score = Session.get('score');
+      return score ? score.player1 : '';
     },
 
     player2: function () {
-      return _globalScore[1];
+      var score = Session.get('score');
+      return score ? score.player2 : '';
     }
   });
 
   Template.rps.events({
+    'click .reset_game': function (event) {
+      Scores.update(Session.get('score')._id, {player1: 0, player2: 0, pendingMove: null});
+      setTimeout(function () { refreshScore(); }, 500);
+    },
+
     'click .move_choices .move': function (event) {
       var MOVE_CHOICES = ['rock', 'paper', 'scissors'];
       var $moveButton = $(event.currentTarget);
       var $movesContainer = $moveButton.parent();
       if (!$movesContainer.hasClass('disabled')) {
-        var playerIndex = ($moveButton.hasClass('player1') ? 0 : 1);
-        var score = _globalScore;
-        var currentMove = Session.get('currentMove');
+        var playerIndex = ($moveButton.hasClass('player1') ? 'player1' : 'player2');
+        var score = Session.get('score');
+        var pendingMove = (score && score.pendingMove ? score.pendingMove : {});
 
         $moveButton.addClass('selected');
         $movesContainer.addClass('disabled');
-        currentMove[playerIndex] = $moveButton.data('movename');
+        pendingMove[playerIndex] = $moveButton.data('movename');
 
-        if (currentMove[0] !== null && currentMove[1] !== null) {
+        if (!pendingMove.player1 && !pendingMove.player2) {
           // find winner
-          var newScore = [score[0], score[1]];
-          var scoreDelta = MOVE_CHOICES.indexOf(currentMove[0]) - MOVE_CHOICES.indexOf(currentMove[1]);
+          var newScore = {player1: score.player1, player2: score.player2};
+          var scoreDelta = MOVE_CHOICES.indexOf(pendingMove.player1) - MOVE_CHOICES.indexOf(pendingMove.player2);
           if (scoreDelta === 0) {
             // tie
-            newScore[0] = score[0] + 1;
-            newScore[1] = score[1] + 1;
+            newScore.player1 = score.player1 + 1;
+            newScore.player2 = score.player2 + 1;
           } else if (scoreDelta === 1 || scoreDelta === -2) {
             // player 1
-            newScore[0] = score[0] + 1;
+            newScore.player1 = score.player1 + 1;
           } else {
             // player 2
-            newScore[1] = score[1] + 1;
+            newScore.player2 = score.player2 + 1;
           }
-          currentMove = [null, null];
+          pendingMove = {};
 
           $('.move.selected').removeClass('selected');
           $('.move_choices.disabled').removeClass('disabled')
-          Scores.update({_id: score._id}, {$set: {score: newScore}});
-          refreshScore();
-          debugger;
+          newScore.pendingMove = pendingMove;
+          Scores.update(score._id, {$set: newScore},
+            function () { refreshScore(); }
+          );
         }
-
-        Session.set('currentMove', currentMove);
       }
     }
   });
@@ -88,18 +87,7 @@ if (Meteor.isClient) {
 if(Meteor.isServer) {
   Meteor.startup(function () {
     if (Scores.find().count() === 0) {
-      Scores.insert({score: [0, 0]});
-    }
-  });
-
-  Meteor.methods({
-    score: function (newscore) {
-      return Scores.find({});
-      var score = Scores.find()[0];
-      if (newscore) {
-        Scores.update(score.id, {score: newscore});
-      }
-      return score.score;
+      Scores.insert({player1: 0, player2: 0});
     }
   });
 }

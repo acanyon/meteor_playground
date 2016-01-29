@@ -18,7 +18,7 @@
 <template name="rps">
   <div style="text-align:center;">
     <label>Score</label>
-    <div>{{player1}},{{player2}}</div>
+    <div class="score">{{player1}},{{player2}}</div>
     <div>{{currentMove}}</div>
   </div>
 
@@ -37,5 +37,7 @@
       <div class="move scissors player2"  data-movename="scissors">scissors</div>
     </div>
   </div>
+
+  <button class="reset_game">Reset</button>
 </template>
 
